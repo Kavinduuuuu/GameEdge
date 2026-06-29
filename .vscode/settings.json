@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+    "ms-vscode.vscode-json"
+  ],
+  "settings": {
+    "git.branchProtection": [
+      "main",
+      "master"
+    ],
+    "git.branchProtectionPrompt": "alwaysPrompt",
+    "git.confirmSync": true,
+    "gitlens.hovers.currentLine.over": "line",
+    "gitlens.codeLens.enabled": true,
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "editor.formatOnSave": true,
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/*.pyc": true,
+      "**/.hermes": true
+    }
+  }
+}

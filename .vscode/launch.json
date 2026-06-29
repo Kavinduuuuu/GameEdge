@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "FinTech: View Board",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "C:\\Users\\Pc\\.hermes\\skills\\fintech-company\\scripts/board.py",
+      "args": [
+        "board"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "FinTech: Debug Bus",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "C:\\Users\\Pc\\.hermes\\skills\\fintech-company\\scripts/bus.py",
+      "args": [
+        "projects"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

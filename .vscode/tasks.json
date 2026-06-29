@@ -1,0 +1,74 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "FinTech: View Board",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "C:\\Users\\Pc\\.hermes\\skills\\fintech-company\\scripts/board.py",
+        "board"
+      ],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "FinTech: PM Inbox",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "C:\\Users\\Pc\\.hermes\\skills\\fintech-company\\scripts/board.py",
+        "inbox",
+        "pm"
+      ],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "FinTech: New Project",
+      "type": "shell",
+      "command": "python",
+      "args": [
+        "C:\\Users\\Pc\\.hermes\\skills\\fintech-company\\scripts/board.py",
+        "new-project",
+        "${input:projectName}"
+      ],
+      "group": "none",
+      "problemMatcher": []
+    },
+    {
+      "label": "FinTech: Git Status (all branches)",
+      "type": "shell",
+      "command": "git",
+      "args": [
+        "branch",
+        "-a",
+        "--list",
+        "task/*"
+      ],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "projectName",
+      "type": "promptString",
+      "description": "Project name",
+      "default": "My FinTech Project"
+    }
+  ]
+}
