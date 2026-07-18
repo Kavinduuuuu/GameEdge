@@ -1,137 +1,172 @@
-import React, { useState, useEffect } from 'react';
-import { Modal } from '../common/Modal';
+import React, { useState } from 'react';
 import { useCreateDevice, useUpdateDevice } from '../../hooks/useDevices';
-import type { Device } from '../../api/devices';
+import type { Device, CreateDeviceInput, UpdateDeviceInput } from '../../api/devices';
 
 interface DeviceFormProps {
   isOpen: boolean;
   onClose: () => void;
-  device?: Device | null;
+  device: Device | null;
   onSuccess: () => void;
 }
 
 export function DeviceForm({ isOpen, onClose, device, onSuccess }: DeviceFormProps) {
-  const [id, setId] = useState('');
-  const [name, setName] = useState('');
-  const [type, setType] = useState<'pc' | 'ps5' | 'pool_table'>('pc');
-  const [status, setStatus] = useState<'available' | 'occupied' | 'maintenance' | 'offline'>('available');
-  const [specsStr, setSpecsStr] = useState('');
+  const [id, setId] = useState(device?.id ?? '');
+  const [type, setType] = useState(device?.type ?? 'pc');
+  const [name, setName] = useState(device?.name ?? '');
+  const [specs, setSpecs] = useState(device?.specs ? JSON.stringify(device.specs, null, 2) : '');
+  const [specsError, setSpecsError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const createDevice = useCreateDevice();
   const updateDevice = useUpdateDevice();
-  const isEditing = !!device;
 
-  useEffect(() => {
-    if (device) {
-      setId(device.id);
-      setName(device.name);
-      setType(device.type);
-      setStatus(device.status);
-      setSpecsStr(device.specs ? JSON.stringify(device.specs, null, 2) : '');
-    } else {
-      setId('');
-      setName('');
-      setType('pc');
-      setStatus('available');
-      setSpecsStr('');
-    }
-  }, [device, isOpen]);
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let specs: Record<string, string> | undefined;
-    if (specsStr.trim()) {
+    setSpecsError(null);
+    setIsLoading(true);
+
+    // Validate
+    if (!id.trim() || !name.trim()) {
+      alert('ID and Name are required');
+      setIsLoading(false);
+      return;
+    }
+
+    let parsedSpecs: Record<string, string> | undefined;
+    if (specs.trim()) {
       try {
-        specs = JSON.parse(specsStr);
-      } catch {
-        return; // invalid JSON
+        parsedSpecs = JSON.parse(specs);
+        if (typeof parsedSpecs !== 'object' || parsedSpecs === null || Array.isArray(parsedSpecs)) {
+          throw new Error('Specs must be a JSON object');
+        }
+        // Ensure all values are strings
+        for (const key in parsedSpecs) {
+          if (typeof parsedSpecs[key] !== 'string') {
+            throw new Error(`Spec value for key "${key}" must be a string`);
+          }
+        }
+      } catch (err) {
+        setSpecsError('Invalid JSON for specs. Must be a valid JSON object with string values.');
+        setIsLoading(false);
+        return;
       }
     }
 
-    if (isEditing && device) {
-      updateDevice.mutate(
-        { id: device.id, data: { name, status, specs } },
-        { onSuccess }
-      );
-    } else {
-      createDevice.mutate(
-        { id, type, name, specs },
-        { onSuccess }
-      );
+    try {
+      if (device) {
+        // Update mode
+        const updateData: UpdateDeviceInput = {
+          name: name.trim(),
+          specs: parsedSpecs,
+        };
+        await updateDevice.mutateAsync({ id: device.id, data: updateData });
+      } else {
+        // Create mode
+        const createData: CreateDeviceInput = {
+          id: id.trim(),
+          type: type as 'pc' | 'ps5' | 'pool_table',
+          name: name.trim(),
+          specs: parsedSpecs,
+        };
+        await createDevice.mutateAsync(createData);
+      }
+      onSuccess();
+    } catch (err) {
+      console.error('Failed to save device:', err);
+      alert('Failed to save device. See console for details.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? 'Edit Device' : 'Add Device'}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {!isEditing && (
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Device ID</label>
-            <input
-              value={id}
-              onChange={(e) => setId(e.target.value)}
-              className="input w-full font-mono text-sm"
-              placeholder="e.g., pc-01"
-              required
-            />
-          </div>
-        )}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input w-full"
-            placeholder="e.g., Gaming PC #1"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Type</label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as 'pc' | 'ps5' | 'pool_table')}
-            className="input w-full"
-            disabled={isEditing}
-          >
-            <option value="pc">PC Station</option>
-            <option value="ps5">PS5 Console</option>
-            <option value="pool_table">Pool Table</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Status</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as 'available' | 'occupied' | 'maintenance' | 'offline')}
-            className="input w-full"
-          >
-            <option value="available">Available</option>
-            <option value="occupied">Occupied</option>
-            <option value="maintenance">Maintenance</option>
-            <option value="offline">Offline</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Specs (JSON)</label>
-          <textarea
-            value={specsStr}
-            onChange={(e) => setSpecsStr(e.target.value)}
-            className="input w-full font-mono text-sm h-24"
-            placeholder='{"CPU": "i7-12700K", "GPU": "RTX 4080"}'
-          />
-        </div>
-        <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-navy-900 rounded-lg p-6 w-full max-w-md mx-4 relative">
+        <div className="flex justify-between items-start mb-4">
+          <h2 className="text-xl font-bold text-white">
+            {device ? 'Edit Device' : 'Add Device'}
+          </h2>
           <button
-            type="submit"
-            className="btn-primary"
-            disabled={createDevice.isPending || updateDevice.isPending}
+            onClick={onClose}
+            className="text-gray-400 hover:text-white"
           >
-            {createDevice.isPending || updateDevice.isPending ? 'Saving...' : isEditing ? 'Update' : 'Create'}
+            ×
           </button>
         </div>
-      </form>
-    </Modal>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Device ID
+            </label>
+            <input
+              type="text"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              className="input w-full"
+              placeholder="Enter unique device ID"
+              disabled={!!device}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Type
+            </label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value as 'pc' | 'ps5' | 'pool_table')}
+              className="input w-full"
+            >
+              <option value="pc">PC</option>
+              <option value="ps5">PS5</option>
+              <option value="pool_table">Pool Table</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input w-full"
+              placeholder="Enter device name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Specs (JSON object, optional)
+            </label>
+            <textarea
+              value={specs}
+              onChange={(e) => setSpecs(e.target.value)}
+              className="textarea w-full h-32 font-mono"
+              placeholder='{"cpu": "Intel i7", "ram": "16GB"}'
+            />
+            {specsError && (
+              <p className="text-xs text-accent-red mt-1">{specsError}</p>
+            )}
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="btn-primary"
+            >
+              {isLoading ? 'Saving...' : (device ? 'Update' : 'Create')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
