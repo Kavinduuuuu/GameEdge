@@ -11,11 +11,18 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
-    "rootDir": "src",
-    "resolveJsonModule": true,
+    "baseUrl": ".",
     "paths": {
       "@gameedge/shared": ["../shared/src/index"]
-    }
+    },
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*",
+    "../shared/src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
 }

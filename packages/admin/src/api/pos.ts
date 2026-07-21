@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, apiGet, apiPatch } from './client';
 
 export interface POSItem {
   id: string;
@@ -24,19 +24,19 @@ export interface CreateOrderInput {
 }
 
 export const posApi = {
-  getItems: () => apiClient<POSItem[]>('/pos/items'),
+  getItems: () => apiGet<POSItem[]>('/pos/items'),
 
   createItem: (data: { name: string; category: string; price: number; stock: number }) =>
-    apiClient<POSItem>('/pos/items', { method: 'POST', body: data }),
+    apiClient<POSItem>('/pos/items', { method: 'POST', body: JSON.stringify(data) }),
 
   updateItem: (id: string, data: Partial<{ name: string; category: string; price: number; stock: number }>) =>
-    apiClient<POSItem>(`/pos/items/${id}`, { method: 'PATCH', body: data }),
+    apiClient<POSItem>(`/pos/items/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
-  getOrders: () => apiClient<Order[]>('/pos/orders'),
+  getOrders: () => apiGet<Order[]>('/pos/orders'),
 
   createOrder: (data: CreateOrderInput) =>
-    apiClient<Order>('/pos/orders', { method: 'POST', body: data }),
+    apiClient<Order>('/pos/orders', { method: 'POST', body: JSON.stringify(data) }),
 
   checkout: (orderId: string) =>
-    apiClient<Order>('/pos/checkout', { method: 'POST', body: { orderId } }),
+    apiClient<Order>('/pos/checkout', { method: 'POST', body: JSON.stringify({ orderId}) }),
 };

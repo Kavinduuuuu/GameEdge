@@ -29,9 +29,7 @@ const router = Router();
 router.get('/revenue', authMiddleware, requireRole('admin', 'staff'), validate(AnalyticsRevenueQuerySchema, 'query'), async (req: Request, res: Response) => {
   const { period } = req.body as { period: 'daily' | 'weekly' | 'monthly' };
 
-  const transactions = await db.transactions
-    .filter(t => t.status === 'success')
-    .getAll();
+  const transactions = await db.transactions.filter(t => t.status === 'success');
 
   // Group by period
   const grouped = groupBy(transactions, (t) => {
@@ -84,9 +82,7 @@ router.get('/bookings', authMiddleware, requireRole('admin', 'staff'), async (_r
 // GET /api/v1/analytics/devices
 router.get('/devices', authMiddleware, requireRole('admin', 'staff'), async (_req: Request, res: Response) => {
   const devices = await db.devices.getAll();
-  const bookings = await db.bookings
-    .filter(b => b.status === 'confirmed' || b.status === 'active' || b.status === 'completed')
-    .getAll();
+  const bookings = await db.bookings.filter(b => b.status === 'confirmed' || b.status === 'active' || b.status === 'completed');
 
   const today = new Date().toISOString().slice(0, 10);
   const todayBookings = bookings.filter(b => b.date === today);
@@ -120,9 +116,7 @@ router.get('/devices', authMiddleware, requireRole('admin', 'staff'), async (_re
 
 // GET /api/v1/analytics/peak-hours
 router.get('/peak-hours', authMiddleware, requireRole('admin', 'staff'), async (_req: Request, res: Response) => {
-  const bookings = await db.bookings
-    .filter(b => b.status === 'confirmed' || b.status === 'active' || b.status === 'completed')
-    .getAll();
+  const bookings = await db.bookings.filter(b => b.status === 'confirmed' || b.status === 'active' || b.status === 'completed');
 
   // Create heatmap: day of week x hour
   const heatmap = new Map<string, Map<string, number>>();

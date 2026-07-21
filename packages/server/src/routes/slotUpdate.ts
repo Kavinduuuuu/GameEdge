@@ -9,6 +9,7 @@ import { validate } from '../middleware/validate';
 import { UpdateSlotSchema } from '@gameedge/shared';
 import { NotFoundError } from '../utils/errors';
 import { logger } from '../utils/logger';
+import type { PricingTier } from '@gameedge/shared';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ router.patch('/:id', authMiddleware, requireRole('admin'), validate(UpdateSlotSc
     throw new NotFoundError('Time slot not found');
   }
 
-  const updates = req.body as { isAvailable?: boolean; pricingTier?: string };
+  const updates = req.body as { isAvailable?: boolean; pricingTier?: PricingTier };
   await db.timeSlots.update(slot.id, updates);
 
   logger.audit('Slot updated', { slotId: slot.id, updates, updatedBy: req.user!.id });

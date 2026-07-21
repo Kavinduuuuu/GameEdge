@@ -15,6 +15,8 @@ export function DeviceForm({ isOpen, onClose, device, onSuccess }: DeviceFormPro
   const [name, setName] = useState(device?.name ?? '');
   const [specs, setSpecs] = useState(device?.specs ? JSON.stringify(device.specs, null, 2) : '');
   const [specsError, setSpecsError] = useState<string | null>(null);
+  const [idError, setIdError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const createDevice = useCreateDevice();
@@ -23,11 +25,30 @@ export function DeviceForm({ isOpen, onClose, device, onSuccess }: DeviceFormPro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSpecsError(null);
+    setIdError(null);
+    setNameError(null);
     setIsLoading(true);
 
-    // Validate
-    if (!id.trim() || !name.trim()) {
-      alert('ID and Name are required');
+    // Validate ID
+    if (!id.trim()) {
+      setIdError('ID is required');
+      setIsLoading(false);
+      return;
+    }
+    if (!/^[a-zA-Z0-9-]+$/.test(id.trim())) {
+      setIdError('ID can only contain letters, numbers, and hyphens');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate Name
+    if (!name.trim()) {
+      setNameError('Name is required');
+      setIsLoading(false);
+      return;
+    }
+    if (!/^[a-zA-Z0-9 _-]+$/.test(name.trim())) {
+      setNameError('Name can only contain letters, numbers, spaces, hyphens, and underscores');
       setIsLoading(false);
       return;
     }
@@ -104,10 +125,13 @@ export function DeviceForm({ isOpen, onClose, device, onSuccess }: DeviceFormPro
               type="text"
               value={id}
               onChange={(e) => setId(e.target.value)}
-              className="input w-full"
+              className={`input w-full ${idError ? 'border-accent-red' : ''}`}
               placeholder="Enter unique device ID"
               disabled={!!device}
             />
+            {idError && (
+              <p className="text-xs text-accent-red mt-1">{idError}</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
@@ -131,9 +155,12 @@ export function DeviceForm({ isOpen, onClose, device, onSuccess }: DeviceFormPro
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input w-full"
+              className={`input w-full ${nameError ? 'border-accent-red' : ''}`}
               placeholder="Enter device name"
             />
+            {nameError && (
+              <p className="text-xs text-accent-red mt-1">{nameError}</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">

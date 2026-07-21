@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, apiGet, apiPatch } from './client';
 
 export interface AuthUser {
   id: string;
@@ -16,7 +16,10 @@ export interface LoginResponse {
 
 export const authApi = {
   login: (email: string, password: string) =>
-    apiClient<LoginResponse>('/auth/login', { method: 'POST', body: { email, password } }),
+    apiClient<LoginResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
 
-  me: () => apiClient<AuthUser>('/auth/me'),
+  me: () => apiGet<AuthUser>('/auth/me'),
 };

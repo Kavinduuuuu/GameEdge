@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, apiGet, apiPatch } from './client';
 
 export interface Booking {
   id: string;
@@ -34,10 +34,10 @@ export const bookingsApi = {
   getById: (id: string) => apiClient<Booking>(`/bookings/${id}`),
 
   create: (data: CreateBookingInput) =>
-    apiClient<Booking>('/bookings', { method: 'POST', body: data }),
+    apiClient<Booking>('/bookings', { method: 'POST', body: JSON.stringify(data) }),
 
   update: (id: string, data: { status?: string }) =>
-    apiClient<Booking>(`/bookings/${id}`, { method: 'PATCH', body: data }),
+    apiClient<Booking>(`/bookings/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
   cancel: (id: string) =>
     apiClient<void>(`/bookings/${id}`, { method: 'DELETE' }),

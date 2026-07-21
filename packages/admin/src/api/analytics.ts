@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiGet } from './client';
 
 export interface RevenueData {
   period: string;
@@ -32,13 +32,13 @@ export interface PeakHourData {
 
 export const analyticsApi = {
   getRevenue: (period: 'daily' | 'weekly' | 'monthly') =>
-    apiClient<{ period: string; data: RevenueData[] }>(`/analytics/revenue?period=${period}`),
+    apiGet<{ period: string; data: RevenueData[] }>(`/analytics/revenue?period=${period}`),
 
-  getBookings: () => apiClient<BookingAnalytics>('/analytics/bookings'),
+  getBookings: () => apiGet<BookingAnalytics>('/analytics/bookings'),
 
   getDevices: () =>
-    apiClient<{ devices: DeviceUtilization[]; summary: { totalDevices: number; averageUtilization: string; totalRevenue: number } }>('/analytics/devices'),
+    apiGet<{ devices: DeviceUtilization[]; summary: { totalDevices: number; averageUtilization: string; totalRevenue: number } }>('/analytics/devices'),
 
   getPeakHours: () =>
-    apiClient<{ heatmap: PeakHourData[]; peakHour: string; peakCount: number; summary: { busiest: string } }>('/analytics/peak-hours'),
+    apiGet<{ heatmap: PeakHourData[]; peakHour: string; peakCount: number; summary: { busiest: string } }>('/analytics/peak-hours'),
 };

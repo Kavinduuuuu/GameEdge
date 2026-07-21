@@ -2,8 +2,9 @@
 // Auth Service
 // ============================================================================
 
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 import { db } from '../db/database';
 import { config } from '../config/index';
 import { UnauthorizedError, ConflictError, NotFoundError } from '../utils/errors';
@@ -18,8 +19,8 @@ interface AuthResult {
 export function generateToken(user: User): string {
   return jwt.sign(
     { userId: user.id, role: user.role },
-    config.jwtSecret,
-    { expiresIn: config.jwtExpiresIn },
+    config.jwtSecret as jwt.Secret,
+    { expiresIn: config.jwtExpiresIn as StringValue }
   );
 }
 
@@ -35,7 +36,7 @@ export async function registerUser(data: { name: string; email: string; phone: s
     throw new ConflictError('Email already registered');
   }
 
-  const passwordHash = await bcrypt.hash(data.password, 10);
+  const passwordHash = await hash(data.password, 10);
   const now = new Date().toISOString();
 
   const user: User = {
@@ -62,7 +63,7 @@ export async function loginUser(data: { email: string; password: string }): Prom
     throw new UnauthorizedError('Invalid email or password');
   }
 
-  const valid = await bcrypt.compare(data.password, user.passwordHash);
+  const valid = await compare(data.password, user.passwordHash);
   if (!valid) {
     throw new UnauthorizedError('Invalid email or password');
   }

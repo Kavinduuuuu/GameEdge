@@ -6,7 +6,7 @@
 
 import { db } from './database';
 import { config } from '../config/index';
-import bcrypt from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 
 // --- Helper ---
 function uid(prefix: string, n: number): string {
@@ -143,7 +143,7 @@ export async function seedDatabase(): Promise<void> {
   // 1. Seed Users
   console.log('  Seeding users...');
   for (const u of USERS) {
-    const passwordHash = await bcrypt.hash(u.password, 10);
+    const passwordHash = await hash(u.password, 10);
     await db.users.add({
       id: randomId(),
       name: u.name,

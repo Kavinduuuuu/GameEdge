@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, apiGet, apiPatch } from './client';
 
 export interface Device {
   id: string;
@@ -28,16 +28,22 @@ export const devicesApi = {
     if (type) params.set('type', type);
     if (status) params.set('status', status);
     const qs = params.toString();
-    return apiClient<Device[]>(`/devices${qs ? `?${qs}` : ''}`);
+    return apiGet<Device[]>(`/devices${qs ? `?${qs}` : ''}`);
   },
 
-  getById: (id: string) => apiClient<Device>(`/devices/${id}`),
+  getById: (id: string) => apiGet<Device>(`/devices/${id}`),
 
   create: (data: CreateDeviceInput) =>
-    apiClient<Device>('/devices', { method: 'POST', body: data }),
+    apiClient<Device>('/devices', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 
   update: (id: string, data: UpdateDeviceInput) =>
-    apiClient<Device>(`/devices/${id}`, { method: 'PATCH', body: data }),
+    apiClient<Device>(`/devices/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
 
   delete: (id: string) =>
     apiClient<void>(`/devices/${id}`, { method: 'DELETE' }),

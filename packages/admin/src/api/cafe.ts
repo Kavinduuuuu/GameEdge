@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, apiGet, apiPatch } from './client';
 
 export interface CafeStatus {
   id: string;
@@ -9,8 +9,8 @@ export interface CafeStatus {
 }
 
 export const cafeApi = {
-  getStatus: () => apiClient<CafeStatus>('/cafe/status'),
+  getStatus: () => apiGet<CafeStatus>('/cafe/status'),
 
   updateStatus: (data: { isOpen?: boolean; maxCapacity?: number }) =>
-    apiClient<CafeStatus>('/cafe/status', { method: 'PATCH', body: data }),
+    apiPatch<CafeStatus>('/cafe/status', data),
 };

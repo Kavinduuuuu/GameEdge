@@ -45,6 +45,9 @@ router.patch('/status', authMiddleware, requireRole('admin'), validate(UpdateCaf
   }
 
   const updatedStatus = await db.cafeStatus.get('cafe');
+  if (!updatedStatus) {
+    throw new Error('Failed to retrieve cafe status after update');
+  }
 
   logger.audit('Cafe status updated', { updatedBy: req.user!.id, status: updatedStatus });
 
