@@ -1,0 +1,28 @@
+﻿import type { Game } from '@/types';
+
+export const MOCK_GAMES: Game[] = [
+  { id: '1', name: 'Valorant', platform: 'pc', genre: 'fps', coverImage: '', description: 'A tactical 5v5 shooter where precise gunplay meets unique agent abilities. Two teams of 5 play against each other over multiple rounds, with one team attacking and the other defending. Buy weapons and agents abilities at the start of each round.', rating: 4.8, reviewCount: 234, releaseYear: 2020, developer: 'Riot Games' },
+  { id: '2', name: 'Counter-Strike 2', platform: 'pc', genre: 'fps', coverImage: '', description: 'The next evolution of Counter-Strike with responsive smokes, sub-tick updates, and new maps.', rating: 4.7, reviewCount: 567, releaseYear: 2023, developer: 'Valve' },
+  { id: '3', name: 'FIFA 27', platform: 'ps5', genre: 'sports', coverImage: '', description: "The world's game, powered by HyperMotion technology for the most realistic football experience.", rating: 4.6, reviewCount: 189, releaseYear: 2023, developer: 'EA Sports' },
+  { id: '4', name: 'League of Legends', platform: 'pc', genre: 'moba', coverImage: '', description: 'A fast-paced, competitive online game that blends the speed and intensity of an RTS with RPG elements.', rating: 4.5, reviewCount: 456, releaseYear: 2009, developer: 'Riot Games' },
+  { id: '5', name: 'Dota 2', platform: 'pc', genre: 'moba', coverImage: '', description: 'Every day is a good day to defend the ancient', rating: 4.4, reviewCount: 345, releaseYear: 2013, developer: 'Valve' },
+  { id: '6', name: 'Spider-Man 2', platform: 'ps5', genre: 'rpg', coverImage: '', description: 'Swing through New York City as Peter Parker and Miles Morales in this open-world action game.', rating: 4.9, reviewCount: 127, releaseYear: 2023, developer: 'Insomniac Games' },
+  { id: '7', name: 'God of War Ragnarok', platform: 'ps5', genre: 'rpg', coverImage: '', description: 'Epic Norse mythology action-adventure', rating: 4.8, reviewCount: 234, releaseYear: 2022, developer: 'Santa Monica Studio' },
+  { id: '8', name: 'Fortnite', platform: 'pc', genre: 'battle_royale', coverImage: '', description: '100-player battle royale with building', rating: 4.4, reviewCount: 567, releaseYear: 2017, developer: 'Epic Games' },
+  { id: '9', name: 'Street Fighter 6', platform: 'ps5', genre: 'fighting', coverImage: '', description: 'The next generation of fighting games', rating: 4.7, reviewCount: 98, releaseYear: 2023, developer: 'Capcom' },
+  { id: '10', name: 'Tekken 8', platform: 'ps5', genre: 'fighting', coverImage: '', description: 'The next chapter of the legendary fighting franchise', rating: 4.6, reviewCount: 76, releaseYear: 2024, developer: 'Bandai Namco' },
+  { id: '11', name: 'Forza Horizon 5', platform: 'pc', genre: 'racing', coverImage: '', description: 'Open-world racing in Mexico', rating: 4.7, reviewCount: 189, releaseYear: 2021, developer: 'Playground Games' },
+  { id: '12', name: 'Gran Turismo 7', platform: 'ps5', genre: 'racing', coverImage: '', description: 'The real driving simulator', rating: 4.5, reviewCount: 134, releaseYear: 2022, developer: 'Polyphony Digital' },
+  { id: '13', name: 'Elden Ring', platform: 'pc', genre: 'rpg', coverImage: '', description: 'Open-world action RPG by FromSoftware', rating: 4.9, reviewCount: 345, releaseYear: 2022, developer: 'FromSoftware' },
+  { id: '14', name: "Baldur's Gate 3", platform: 'pc', genre: 'rpg', coverImage: '', description: 'D&D-based RPG with unprecedented freedom', rating: 4.9, reviewCount: 234, releaseYear: 2023, developer: 'Larian Studios' },
+  { id: '15', name: 'Rocket League', platform: 'pc', genre: 'sports', coverImage: '', description: 'Soccer with rocket-powered cars', rating: 4.3, reviewCount: 456, releaseYear: 2015, developer: 'Psyonix' },
+  { id: '16', name: 'Overwatch 2', platform: 'pc', genre: 'fps', coverImage: '', description: 'Team-based action with 40+ heroes', rating: 4.2, reviewCount: 345, releaseYear: 2022, developer: 'Blizzard' },
+  { id: '17', name: 'Apex Legends', platform: 'pc', genre: 'battle_royale', coverImage: '', description: 'Legend-based battle royale', rating: 4.5, reviewCount: 567, releaseYear: 2019, developer: 'Respawn' },
+  { id: '18', name: 'Madden NFL 24', platform: 'ps5', genre: 'sports', coverImage: '', description: 'The ultimate NFL simulation', rating: 4.3, reviewCount: 89, releaseYear: 2023, developer: 'EA Sports' },
+  { id: '19', name: 'Civilization VI', platform: 'pc', genre: 'strategy', coverImage: '', description: 'Build an empire to stand the test of time', rating: 4.6, reviewCount: 234, releaseYear: 2016, developer: 'Firaxis' },
+  { id: '20', name: 'Age of Empires IV', platform: 'pc', genre: 'strategy', coverImage: '', description: 'Real-time strategy with historical civilizations', rating: 4.5, reviewCount: 123, releaseYear: 2021, developer: 'Relic Entertainment' },
+  { id: '21', name: 'Resident Evil 4', platform: 'ps5', genre: 'horror', coverImage: '', description: 'Survival horror reimagined', rating: 4.8, reviewCount: 234, releaseYear: 2023, developer: 'Capcom' },
+  { id: '22', name: 'Dead Space', platform: 'pc', genre: 'horror', coverImage: '', description: 'Sci-fi survival horror remake', rating: 4.6, reviewCount: 156, releaseYear: 2023, developer: 'Motive Studio' },
+  { id: '23', name: 'F1 25', platform: 'ps5', genre: 'racing', coverImage: '', description: 'Official F1 game', rating: 4.4, reviewCount: 78, releaseYear: 2024, developer: 'Codemasters' },
+  { id: '24', name: 'Starfield', platform: 'pc', genre: 'rpg', coverImage: '', description: "Bethesda's space exploration RPG", rating: 4.1, reviewCount: 234, releaseYear: 2023, developer: 'Bethesda' },
+];

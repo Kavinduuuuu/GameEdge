@@ -1,12 +1,55 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Star, Monitor, Gamepad2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Game } from '@/types';
 import { cn } from '@/lib/utils';
+
+// "Baldur's Gate 3" -> "baldurs-gate-3"
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+interface GameCoverProps {
+  name: string;
+  platform: string;
+}
+
+// Image eka thiyenawa nam penawa, nathnam icon eka penawa
+function GameCover({ name, platform }: GameCoverProps) {
+  const [failed, setFailed] = useState(false);
+  const src = `/games/${slugify(name)}.jpg`;
+
+  if (!failed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={name}
+        loading="lazy"
+        onError={() => setFailed(true)}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+      />
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center">
+      {platform === 'pc' ? (
+        <Monitor className="h-16 w-16 text-white/20" />
+      ) : (
+        <Gamepad2 className="h-16 w-16 text-white/20" />
+      )}
+    </div>
+  );
+}
 
 interface GameCardProps {
   game: Game;
@@ -19,15 +62,9 @@ export function GameCard({ game }: GameCardProps) {
         <CardContent className="p-0">
           {/* Cover Art */}
           <div className="relative aspect-[3/4] bg-gradient-to-br from-gameedge-dark-700 to-gameedge-dark-800 overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center">
-              {game.platform === 'pc' ? (
-                <Monitor className="h-16 w-16 text-white/20" />
-              ) : (
-                <Gamepad2 className="h-16 w-16 text-white/20" />
-              )}
-            </div>
+            <GameCover key={game.name} name={game.name} platform={game.platform} />
             <div className="absolute inset-0 bg-gradient-to-t from-gameedge-dark-900/90 via-transparent to-transparent" />
-            
+
             {/* Platform Badge */}
             <div className="absolute top-2 left-2">
               <Badge variant={game.platform === 'pc' ? 'default' : 'secondary'}>

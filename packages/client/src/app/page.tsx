@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Monitor, Gamepad2, CircleDot, ChevronRight, Zap, Trophy, Users, Clock } from 'lucide-react';
+import { Monitor, Gamepad2, CircleDot, ChevronRight, Zap, Trophy, Car } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,16 +10,14 @@ import { Badge } from '@/components/ui/badge';
 import { CafeStatusBadge, OccupancyBar } from '@/components/status/CafeStatusBadge';
 import { GameCard } from '@/components/games/GameCard';
 import { useCafeStatus } from '@/hooks/useCafeStatus';
-import type { Game } from '@/types';
+import { useAuth } from '@/providers/AuthProvider';
+import { MOCK_GAMES } from '@/data/mockGames';
 
-const FEATURED_GAMES: Game[] = [
-  { id: '1', name: 'Valorant', platform: 'pc', genre: 'fps', coverImage: '', description: 'Tactical 5v5 shooter', rating: 4.8, reviewCount: 234, releaseYear: 2020, developer: 'Riot Games' },
-  { id: '2', name: 'FIFA 24', platform: 'ps5', genre: 'sports', coverImage: '', description: 'World\'s game', rating: 4.6, reviewCount: 189, releaseYear: 2023, developer: 'EA Sports' },
-  { id: '3', name: 'League of Legends', platform: 'pc', genre: 'moba', coverImage: '', description: '5v5 MOBA', rating: 4.5, reviewCount: 456, releaseYear: 2009, developer: 'Riot Games' },
-  { id: '4', name: 'Spider-Man 2', platform: 'ps5', genre: 'rpg', coverImage: '', description: 'Open-world action', rating: 4.9, reviewCount: 127, releaseYear: 2023, developer: 'Insomniac' },
-  { id: '5', name: 'Fortnite', platform: 'pc', genre: 'battle_royale', coverImage: '', description: '100-player battle royale', rating: 4.4, reviewCount: 567, releaseYear: 2017, developer: 'Epic Games' },
-  { id: '6', name: 'Street Fighter 6', platform: 'ps5', genre: 'fighting', coverImage: '', description: 'Competitive fighting', rating: 4.7, reviewCount: 98, releaseYear: 2023, developer: 'Capcom' },
-];
+// Featured games: mockGames.ts walin ids walata anuwa
+const FEATURED_IDS = ['1', '3', '4', '6', '8', '9'];
+const FEATURED_GAMES = FEATURED_IDS
+  .map((id) => MOCK_GAMES.find((g) => g.id === id))
+  .filter((g): g is NonNullable<typeof g> => Boolean(g));
 
 const quickActions = [
   { title: 'Book a PC', description: 'RTX 4070, 240Hz', icon: Monitor, href: '/booking', color: 'text-gameedge-primary' },
@@ -27,23 +25,106 @@ const quickActions = [
   { title: 'Book a Pool Table', description: 'Tournament quality', icon: CircleDot, href: '/booking', color: 'text-gameedge-success' },
 ];
 
+// ============================================================
+// PRICING (Rs.): mila wenas karanna ona nam methana witharak wenas karanna
+// ============================================================
+const PRICING = [
+  {
+    title: 'Gaming PC',
+    subtitle: 'RTX 4070 · 240Hz monitor',
+    icon: Monitor,
+    color: 'text-gameedge-primary',
+    rates: [
+      { label: '1 hour', price: 400 },
+      { label: '5 hours', price: 1750, note: 'Save Rs. 250' },
+    ],
+  },
+  {
+    title: 'PS5',
+    subtitle: '55" 4K · DualSense controllers',
+    icon: Gamepad2,
+    color: 'text-gameedge-secondary',
+    rates: [
+      { label: '1 player · 1 hour', price: 800 },
+      { label: '2 players · 1 hour', price: 1200 },
+      { label: '3 players · 1 hour', price: 1600 },
+      { label: '4 players · 1 hour', price: 2000 },
+    ],
+  },
+  {
+    title: 'PS4',
+    subtitle: 'Classic couch gaming',
+    icon: Gamepad2,
+    color: 'text-gameedge-primary',
+    rates: [
+      { label: '1 player · 1 hour', price: 500 },
+      { label: '2 players · 1 hour', price: 800 },
+      { label: '3 players · 1 hour', price: 1000 },
+      { label: '4 players · 1 hour', price: 1200 },
+    ],
+  },
+  {
+    title: 'Racing Simulator',
+    subtitle: 'Wheel, pedals & racing seat',
+    icon: Car,
+    color: 'text-gameedge-warning',
+    rates: [
+      { label: '30 minutes', price: 500 },
+      { label: '1 hour', price: 1000 },
+    ],
+  },
+  {
+    title: 'Pool Table',
+    subtitle: 'Tournament quality',
+    icon: CircleDot,
+    color: 'text-gameedge-success',
+    rates: [{ label: '1 hour', price: 1000 }],
+  },
+];
+
+// Real numbers: seed data eke thiyena ewa (20 PCs + 5 PS5s + 3 Pool Tables = 28)
 const stats = [
   { label: 'Gaming Stations', value: '28', icon: Monitor },
-  { label: 'Active Players', value: '1.2K+', icon: Users },
-  { label: 'Games Available', value: '150+', icon: Trophy },
-  { label: 'Uptime', value: '99.9%', icon: Zap },
+  { label: 'High-End PCs', value: '20', icon: Monitor },
+  { label: 'PS5 Consoles', value: '5', icon: Gamepad2 },
+  { label: 'Games Available', value: String(MOCK_GAMES.length), icon: Trophy },
 ];
+
+function formatRs(amount: number): string {
+  return `Rs. ${amount.toLocaleString('en-US')}`;
+}
+
+// public/hero.png thiyenawa nam penawa, nathnam gradient eka witharai
+function HeroBackground() {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) return null;
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/hero.png"
+      alt=""
+      onError={() => setFailed(true)}
+      className="absolute inset-0 h-full w-full object-cover opacity-100"
+    />
+  );
+}
 
 export default function HomePage() {
   const { status } = useCafeStatus();
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-gradient-to-br from-gameedge-dark-900 via-gameedge-dark-800 to-gameedge-dark-900" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.1),transparent_50%)]" />
+        <HeroBackground />
+        {/* Dark overlay (light): image eka penna */}
+        <div className="absolute inset-0 bg-gradient-to-b from-gameedge-dark-900/35 via-gameedge-dark-900/25 to-gameedge-dark-900" />
+        {/* Text pitipasse dark glow (light) */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(8,12,24,0.45),transparent_60%)]" />
 
         <div className="relative container mx-auto px-4 py-16 md:py-24">
           <motion.div
@@ -56,17 +137,17 @@ export default function HomePage() {
               <Zap className="h-3 w-3 mr-1" />
               Live Now
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 [text-shadow:0_2px_16px_rgba(0,0,0,0.85)]">
               Game<span className="text-gameedge-primary">Edge</span> e-Sports
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground mb-8">
+            <p className="text-lg md:text-xl text-gray-100 mb-8 [text-shadow:0_2px_12px_rgba(0,0,0,0.9)]">
               The ultimate gaming cafe experience. Premium stations, competitive rates,
               and a community of passionate gamers.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
               <CafeStatusBadge />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-gray-200 [text-shadow:0_1px_8px_rgba(0,0,0,0.9)]">
                 {status.openingTime} - {status.closingTime} Daily
               </span>
             </div>
@@ -81,7 +162,7 @@ export default function HomePage() {
                 </Button>
               </Link>
               <Link href="/games">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto bg-black/30 backdrop-blur-sm">
                   Browse Games
                 </Button>
               </Link>
@@ -135,6 +216,63 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Pricing / Rates */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Pricing & Rates</h2>
+          <p className="text-muted-foreground">Simple rates for every kind of gamer.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {PRICING.map((plan, i) => (
+            <motion.div
+              key={plan.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+            >
+              <Card className="h-full transition-all duration-300 hover:border-gameedge-primary/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="h-12 w-12 rounded-lg bg-white/5 flex items-center justify-center">
+                      <plan.icon className={`h-6 w-6 ${plan.color}`} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">{plan.title}</h3>
+                      <p className="text-xs text-muted-foreground">{plan.subtitle}</p>
+                    </div>
+                  </div>
+
+                  <ul className="divide-y divide-white/10 flex-1 mb-6">
+                    {plan.rates.map((rate) => (
+                      <li key={rate.label} className="flex items-center justify-between py-2.5 text-sm">
+                        <span className="text-muted-foreground">{rate.label}</span>
+                        <span className="flex items-center gap-2">
+                          {'note' in rate && rate.note && (
+                            <Badge variant="outline" className="text-[10px]">{rate.note}</Badge>
+                          )}
+                          <span className="font-semibold text-foreground">{formatRs(rate.price)}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link href="/booking">
+                    <Button variant="outline" className="w-full">
+                      Book Now
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          All prices are in Sri Lankan Rupees (Rs.). PS4 and PS5 rates are for the whole group, per hour.
+        </p>
+      </section>
+
       {/* Featured Games */}
       <section className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-6">
@@ -153,7 +291,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section: login wela nam Book Now, nathnam Create Account */}
       <section className="border-t border-white/10">
         <div className="container mx-auto px-4 py-16 text-center">
           <Card className="max-w-2xl mx-auto bg-gradient-to-br from-gameedge-primary/10 to-gameedge-secondary/10 border-gameedge-primary/20">
@@ -161,12 +299,13 @@ export default function HomePage() {
               <Trophy className="h-12 w-12 text-gameedge-primary mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-foreground mb-2">Ready to Game?</h2>
               <p className="text-muted-foreground mb-6">
-                Join thousands of gamers at GameEdge. Book your station now and experience
-                premium gaming with zero lag.
+                {isAuthenticated
+                  ? 'Pick your station and lock in your next session. Premium gaming with zero lag.'
+                  : 'Join gamers at GameEdge. Book your station now and experience premium gaming with zero lag.'}
               </p>
-              <Link href="/auth/register">
+              <Link href={isAuthenticated ? '/booking' : '/auth/register'}>
                 <Button size="lg">
-                  Create Free Account
+                  {isAuthenticated ? 'Book Now' : 'Create Free Account'}
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               </Link>

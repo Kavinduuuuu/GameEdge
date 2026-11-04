@@ -45,3 +45,6 @@ fintech-company/bus.db-*
 *.p12
 *.pfx
 secrets/
+
+.env
+.env.local

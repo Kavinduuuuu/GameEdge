@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Monitor, Gamepad2, Calendar, User } from 'lucide-react';
+import { ArrowLeft, Monitor, Gamepad2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,20 +11,45 @@ import { StarRating } from '@/components/games/GameCard';
 import { ReviewCard, ReviewForm } from '@/components/games/ReviewCard';
 import { GameCard } from '@/components/games/GameCard';
 import { useAuth } from '@/providers/AuthProvider';
-import type { Game, Review } from '@/types';
+import { MOCK_GAMES as ALL_GAMES } from '@/data/mockGames';
+import type { Review } from '@/types';
 
-const MOCK_GAMES: Game[] = [
-  { id: '1', name: 'Valorant', platform: 'pc', genre: 'fps', coverImage: '', description: 'A tactical 5v5 shooter where precise gunplay meets unique agent abilities. Two teams of 5 play against each other over multiple rounds, with one team attacking and the other defending. Buy weapons and agents abilities at the start of each round.', rating: 4.8, reviewCount: 234, releaseYear: 2020, developer: 'Riot Games' },
-  { id: '2', name: 'Counter-Strike 2', platform: 'pc', genre: 'fps', coverImage: '', description: 'The next evolution of Counter-Strike with responsive smokes, sub-tick updates, and new maps.', rating: 4.7, reviewCount: 567, releaseYear: 2023, developer: 'Valve' },
-  { id: '3', name: 'FIFA 24', platform: 'ps5', genre: 'sports', coverImage: '', description: 'The world\'s game, powered by HyperMotion technology for the most realistic football experience.', rating: 4.6, reviewCount: 189, releaseYear: 2023, developer: 'EA Sports' },
-  { id: '4', name: 'League of Legends', platform: 'pc', genre: 'moba', coverImage: '', description: 'A fast-paced, competitive online game that blends the speed and intensity of an RTS with RPG elements.', rating: 4.5, reviewCount: 456, releaseYear: 2009, developer: 'Riot Games' },
-  { id: '5', name: 'Spider-Man 2', platform: 'ps5', genre: 'rpg', coverImage: '', description: 'Swing through New York City as Peter Parker and Miles Morales in this open-world action game.', rating: 4.9, reviewCount: 127, releaseYear: 2023, developer: 'Insomniac Games' },
-];
+// "Baldur's Gate 3" -> "baldurs-gate-3"
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
-const MOCK_REVIEWS: Review[] = [
-  { id: 'r1', gameId: '1', userId: 'u1', userName: 'GamerPro99', rating: 5, comment: 'Best FPS I\'ve played in years. The agent abilities add so much depth to the tactical gameplay. Highly recommend playing at GameEdge on the RTX rigs!', createdAt: '2024-01-15T10:30:00Z' },
-  { id: 'r2', gameId: '1', userId: 'u2', userName: 'NightOwl', rating: 4, comment: 'Great game, smooth performance on the gaming PCs. The 240Hz monitors make a huge difference in competitive play.', createdAt: '2024-01-10T14:20:00Z' },
-  { id: 'r3', gameId: '1', userId: 'u3', userName: 'TacticalShark', rating: 5, comment: 'Perfect setup for ranked sessions. Low latency, great peripherals, and the cafe atmosphere is unbeatable.', createdAt: '2024-01-05T18:45:00Z' },
+// Image thiyenawa nam penawa, nathnam icon eka penawa
+function BigCover({ name, platform }: { name: string; platform: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!failed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={`/games/${slugify(name)}.jpg`}
+        alt={name}
+        onError={() => setFailed(true)}
+        className="h-full w-full object-cover"
+      />
+    );
+  }
+
+  return platform === 'pc' ? (
+    <Monitor className="h-24 w-24 text-white/20" />
+  ) : (
+    <Gamepad2 className="h-24 w-24 text-white/20" />
+  );
+}
+
+const BASE_REVIEWS: Omit<Review, 'gameId'>[] = [
+  { id: 'r1', userId: 'u1', userName: 'GamerPro99', rating: 5, comment: "Best game I've played in years. Highly recommend playing at GameEdge on the RTX rigs!", createdAt: '2024-01-15T10:30:00Z' },
+  { id: 'r2', userId: 'u2', userName: 'NightOwl', rating: 4, comment: 'Great game, smooth performance on the gaming PCs. The 240Hz monitors make a huge difference.', createdAt: '2024-01-10T14:20:00Z' },
+  { id: 'r3', userId: 'u3', userName: 'TacticalShark', rating: 5, comment: 'Perfect setup. Low latency, great peripherals, and the cafe atmosphere is unbeatable.', createdAt: '2024-01-05T18:45:00Z' },
 ];
 
 export default function GameDetailPage() {
@@ -33,10 +58,25 @@ export default function GameDetailPage() {
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   const gameId = params.id as string;
-  const game = MOCK_GAMES.find((g) => g.id === gameId) || MOCK_GAMES[0];
-  const reviews = MOCK_REVIEWS;
+  const game = ALL_GAMES.find((g) => g.id === gameId);
 
-  const relatedGames = MOCK_GAMES.filter(
+  if (!game) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold text-foreground mb-4">Game not found</h1>
+        <Link href="/games">
+          <Button variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Games
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const reviews: Review[] = BASE_REVIEWS.map((r) => ({ ...r, gameId: game.id }));
+
+  const relatedGames = ALL_GAMES.filter(
     (g) => g.id !== game.id && (g.genre === game.genre || g.platform === game.platform)
   ).slice(0, 4);
 
@@ -62,11 +102,7 @@ export default function GameDetailPage() {
         {/* Cover Art */}
         <div className="md:col-span-1">
           <div className="aspect-[3/4] rounded-xl bg-gradient-to-br from-gameedge-dark-700 to-gameedge-dark-800 overflow-hidden border border-white/10 flex items-center justify-center">
-            {game.platform === 'pc' ? (
-              <Monitor className="h-24 w-24 text-white/20" />
-            ) : (
-              <Gamepad2 className="h-24 w-24 text-white/20" />
-            )}
+            <BigCover key={game.id} name={game.name} platform={game.platform} />
           </div>
         </div>
 
@@ -133,7 +169,7 @@ export default function GameDetailPage() {
                 gameId={game.id}
                 isLoggedIn={isAuthenticated}
                 onSubmit={handleReviewSubmit}
-                onLoginRequired={() => window.location.href = '/auth/login'}
+                onLoginRequired={() => (window.location.href = '/auth/login')}
               />
             </div>
           )}
