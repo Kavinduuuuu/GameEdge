@@ -48,3 +48,5 @@ secrets/
 
 .env
 .env.local
+
+packages/client/public/games/*.jpg
