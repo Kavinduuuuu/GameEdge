@@ -106,6 +106,16 @@ These are demo credentials for local development only.
 | Racing Simulator | 30 min Rs. 500 · 1 hour Rs. 1,000 |
 | Pool Table | 1 hour Rs. 1,000 |
 
+## 📸 Screenshots
+
+### Home
+![Home](docs/screenshots/home.png)
+
+### Game Library
+![Games](docs/screenshots/games.png)
+
+### Booking
+![Booking](docs/screenshots/booking.png)
 
 ## 🛠️ Useful Scripts
 
